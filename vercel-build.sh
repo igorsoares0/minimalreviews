@@ -8,9 +8,10 @@ echo "NPM version: $(npm -v)"
 echo "Instalando dependências..."
 npm install
 
-# Usar o script de configuração em vez do Prisma CLI
-echo "Configurando ambiente..."
-node vercel-setup.js
+# Gerar cliente Prisma e aplicar migrações
+echo "Configurando banco de dados..."
+npx prisma generate
+npx prisma migrate deploy
 
 # Construir o aplicativo Remix
 echo "Construindo aplicativo Remix..."

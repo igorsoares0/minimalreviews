@@ -4,7 +4,6 @@
   "outputDirectory": "build/client",
   "installCommand": "npm install",
   "env": {
-    "DATABASE_URL": "file:./data.db",
     "NODE_ENV": "production"
   }
 }

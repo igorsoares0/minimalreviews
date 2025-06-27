@@ -3,15 +3,14 @@
 
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native"]
 }
 
 // Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
 // enough when changing adapters.
 // See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
-  provider = "sqlite"
-  url      = "file:./data.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Session {
@@ -107,4 +106,30 @@ model ReviewInvitation {
   @@index([shop, scheduledFor])
   @@index([shop, sentAt])
   @@index([token])
+}
+
+model EmailSettings {
+  id                    String   @id @default(cuid())
+  shop                  String   @unique
+  mailtrapApiToken      String?
+  mailtrapInboxId       String?
+  fromEmail             String   @default("reviews@yourstore.com")
+  fromName              String   @default("Your Store")
+  externalApiUrl        String?
+  rwsBaseUrl            String?
+  autoSendEnabled       Boolean  @default(false)
+  autoSendDaysAfter     Int      @default(7)
+  autoSendMaxReminders  Int      @default(2)
+  autoSendReminderDays  Int      @default(7)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model ReviewTemplate {
+  id        String   @id @default(cuid())
+  shop      String   @unique
+  subject   String   @default("Como foi sua experiência com {{product_title}}?")
+  body      String   @default("Olá {{customer_name}},\n\nEsperamos que esteja satisfeito(a) com sua compra de {{product_title}}!\n\nGostaríamos muito de saber sua opinião. Clique no link abaixo para deixar sua avaliação:\n\n{{review_link}}\n\nObrigado!")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
