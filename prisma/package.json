@@ -1,0 +1,16 @@
+{
+  "name": "minimalreviews-prisma",
+  "version": "1.0.0",
+  "description": "Prisma configuration for Minimal Reviews",
+  "main": "seed.js",
+  "type": "module",
+  "scripts": {
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.2.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.2.1"
+  }
+} 

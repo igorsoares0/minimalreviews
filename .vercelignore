@@ -1,43 +1,30 @@
-# Development files
-test-*.js
-check-*.js
-debug-*.js
-simulate-*.js
-fix-*.js
-!vite.config.ts
-!app/**
-
-# Test files
-test-*
-check-*
-debug-*
-simulate-*
-run-tests.bat
-process-*
-auto-process-*
-create-test-*
-fix-*
-detect-*
-
-# Documentation
-*.md
-!README.md
-
 # Node modules and cache
 node_modules/
 .cache/
-.env*
 
 # Build artifacts
 build/
 dist/
 
-# IDE and editor files
-.vscode/
-.idea/
+# Environment files
+.env*
+!.env.example
 
 # Git
 .git/
 
 # Shopify CLI
-.shopify/ 
+.shopify/
+
+# Test files
+test-*.js
+check-*.js
+debug-*.js
+simulate-*.js
+fix-*.js
+auto-process-*.js
+create-test-*.js
+
+# Documentation
+*.md
+!README.md 

@@ -1,11 +1,10 @@
 {
-  "buildCommand": "prisma generate && remix vite:build",
   "framework": "remix",
-  "installCommand": "npm install",
+  "buildCommand": "npm run build",
   "outputDirectory": "build/client",
-  "build": {
-    "env": {
-      "DATABASE_URL": "file:./data.db"
-    }
+  "installCommand": "npm install",
+  "env": {
+    "DATABASE_URL": "file:./data.db",
+    "NODE_ENV": "production"
   }
 }
