@@ -10,7 +10,7 @@ generator client {
 // See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
   provider = "sqlite"
-  url      = "file:dev.sqlite"
+  url      = env("DATABASE")
 }
 
 model Session {
@@ -73,7 +73,7 @@ model ReviewSettings {
   // URL da API externa para envio de reviews
   externalApiUrl        String?
   // URL base do RWS para links de review
-  rwsBaseUrl            String  @default("http://localhost:3002")
+  rwsBaseUrl            String  @default("https://rws-three.vercel.app")
   // Configurações de envio automático
   autoSendEnabled       Boolean @default(false) // Habilitar envio automático
   autoSendDaysAfter     Int     @default(7)     // Dias após entrega para enviar
