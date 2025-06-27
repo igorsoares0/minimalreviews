@@ -1,0 +1,213 @@
+{% comment %}
+  Minimal Reviews - Star Rating Block
+  Busca reviews da API do app e exibe a avaliação média
+{% endcomment %}
+
+{% if product %}
+  {% assign product_id = product.id %}
+{% else %}
+  {% assign product_id = block.settings.product.id | remove: 'gid://shopify/Product/' %}
+{% endif %}
+{% assign shop_domain = shop.permanent_domain %}
+
+<div class="minimal-reviews-widget" data-product-id="{{ product_id }}" data-shop="{{ shop_domain }}">
+  <div class="reviews-loading">
+    <span style="color: {{ block.settings.colour }};">Carregando avaliações...</span>
+  </div>
+  
+  <div class="reviews-content" style="display: none;">
+    <div class="average-rating">
+      <span class="stars" style="color: {{ block.settings.colour }};"></span>
+      <span class="rating-text"></span>
+    </div>
+    
+    {% if block.settings.show_reviews %}
+      <div class="reviews-list"></div>
+    {% endif %}
+  </div>
+  
+  <div class="reviews-error" style="display: none;">
+    <span style="color: #999;">Não foi possível carregar as avaliações</span>
+  </div>
+</div>
+
+<script>
+// Função para renderizar media URLs
+function renderMediaUrls(mediaUrls, template) {
+  if (!mediaUrls || !mediaUrls.length) return '';
+  
+  const sizes = {
+    classic: { img: '60px', video: '80px' },
+    modern: { img: '80px', video: '100px' },
+    minimal: { img: '50px', video: '70px' }
+  };
+  
+  const size = sizes[template] || sizes.classic;
+  
+  return `<div class="review-media" style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">${mediaUrls.map(url => {
+    const lower = url.toLowerCase();
+    if (/(\.jpg|\.jpeg|\.png|\.gif|\.webp|\.bmp|\.svg)(\?|$)/.test(lower) || 
+        /shopify\.com.*\.(jpg|jpeg|png|gif|webp)/i.test(url) ||
+        /cdn\.shopify\.com/i.test(url) ||
+        /shopifycdn\.com/i.test(url) ||
+        /imgur\.com/i.test(url) ||
+        /cloudinary\.com/i.test(url) ||
+        /unsplash\.com/i.test(url) ||
+        /pixabay\.com/i.test(url) ||
+        /pexels\.com/i.test(url)) {
+      return `<img src="${url}" style="width:${size.img};height:${size.img};border-radius:${template === 'modern' ? '8px' : '4px'};object-fit:cover;${template === 'modern' ? 'box-shadow:0 2px 8px rgba(0,0,0,0.1);' : ''}" loading="lazy" />`;
+    } else if (/(\.mp4|\.webm|\.ogg|\.mov)(\?|$)/.test(lower)) {
+      return `<video src="${url}" style="width:${size.video};height:${size.img};border-radius:${template === 'modern' ? '8px' : '4px'};" controls muted></video>`;
+    } else {
+      return `<img src="${url}" style="width:${size.img};height:${size.img};border-radius:${template === 'modern' ? '8px' : '4px'};object-fit:cover;" loading="lazy" onerror="this.outerHTML='<a href=\\"${url}\\" target=\\"_blank\\">Mídia</a>'" />`;
+    }
+  }).join('')}</div>`;
+}
+
+// Função para renderizar templates de review
+function renderReviewTemplate(review, template, starColor) {
+  const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+  const customerName = review.customerName || 'Cliente Anônimo';
+  const date = new Date(review.createdAt).toLocaleDateString('pt-BR');
+  const mediaHtml = renderMediaUrls(review.mediaUrls, template);
+  
+  switch (template) {
+    case 'modern':
+      return `
+        <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <div>
+              <div style="color: ${starColor}; font-size: 18px; margin-bottom: 4px;">${stars}</div>
+              <div style="font-weight: 700; color: #1a1a1a; font-size: 16px;">${customerName}</div>
+            </div>
+            ${review.verified ? '<div style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 16px; font-size: 11px; font-weight: 600;">VERIFICADO</div>' : ''}
+          </div>
+          ${review.title ? `<h4 style="margin: 0 0 8px 0; color: #1a1a1a; font-size: 18px;">${review.title}</h4>` : ''}
+          ${review.content ? `<p style="color: #555; line-height: 1.5; margin-bottom: 16px;">${review.content}</p>` : ''}
+          ${mediaHtml}
+          <div style="color: #888; font-size: 13px; margin-top: 12px;">${date}</div>
+        </div>
+      `;
+      
+    case 'minimal':
+      return `
+        <div style="border-left: 4px solid ${starColor}; padding-left: 16px; margin: 16px 0;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <span style="color: ${starColor};">${stars}</span>
+            <span style="color: #333; font-weight: 500;">${customerName}</span>
+            <span style="color: #999; font-size: 12px;">${date}</span>
+          </div>
+          ${review.title ? `<div style="color: #333; font-weight: 600; margin-bottom: 6px;">${review.title}</div>` : ''}
+          ${review.content ? `<div style="color: #666; line-height: 1.4; margin-bottom: 12px;">${review.content}</div>` : ''}
+          ${mediaHtml}
+        </div>
+      `;
+      
+    default: // classic
+      return `
+        <div style="border: 1px solid #e1e3e5; border-radius: 8px; padding: 16px; background: white; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="color: ${starColor}; font-size: 16px;">${stars}</span>
+            <strong style="color: #202223;">${customerName}</strong>
+          </div>
+          ${review.title ? `<div style="font-weight: 600; margin-bottom: 8px; color: #202223;">${review.title}</div>` : ''}
+          ${review.content ? `<div style="color: #6D7175; line-height: 1.4; margin-bottom: 12px;">${review.content}</div>` : ''}
+          ${mediaHtml}
+          <div style="color: #8C9196; font-size: 12px; margin-top: 8px;">${date}</div>
+        </div>
+      `;
+  }
+}
+
+(function() {
+  const widget = document.querySelector('[data-product-id="{{ product_id }}"]');
+  if (!widget) return;
+  
+  const productId = widget.dataset.productId;
+  const shop = widget.dataset.shop;
+  const apiUrl = `https://${shop}/apps/minimalreviews/api/reviews?shop=${shop}&productId=gid://shopify/Product/${productId}`;
+  
+  console.log('🔍 Theme Extension - Dados:', { productId, shop, apiUrl });
+  
+  // Buscar reviews
+  fetch(apiUrl)
+    .then(response => {
+      console.log('📡 Response status:', response.status);
+      return response.json();
+    })
+    .then(data => {
+      console.log('📦 Data recebida:', data);
+      
+      const loading = widget.querySelector('.reviews-loading');
+      const content = widget.querySelector('.reviews-content');
+      const error = widget.querySelector('.reviews-error');
+      
+      loading.style.display = 'none';
+      
+      if (data.error) {
+        console.error('❌ Erro nos dados:', data.error);
+        error.style.display = 'block';
+        return;
+      }
+      
+      // Mostrar avaliação média
+      const stars = content.querySelector('.stars');
+      const ratingText = content.querySelector('.rating-text');
+      const avgRating = data.stats.averageRating;
+      const totalReviews = data.stats.totalReviews;
+      
+      console.log('⭐ Stats:', { avgRating, totalReviews, reviewsCount: data.reviews.length });
+      
+      stars.innerHTML = '★'.repeat(Math.round(avgRating)) + '☆'.repeat(5 - Math.round(avgRating));
+      ratingText.textContent = `${avgRating} (${totalReviews} ${totalReviews === 1 ? 'avaliação' : 'avaliações'})`;
+      
+      {% if block.settings.show_reviews %}
+      // Mostrar lista de reviews
+      const reviewsList = content.querySelector('.reviews-list');
+      if (data.reviews.length > 0) {
+        console.log('📝 Renderizando', data.reviews.length, 'reviews');
+        const template = data.template || 'classic';
+        reviewsList.innerHTML = data.reviews.map(review => renderReviewTemplate(review, template, '{{ block.settings.colour }}')).join('');
+      } else {
+        console.log('📝 Nenhuma review para renderizar');
+      }
+{% endif %}
+      
+      content.style.display = 'block';
+    })
+    .catch(err => {
+      console.error('Erro ao carregar reviews:', err);
+      widget.querySelector('.reviews-loading').style.display = 'none';
+      widget.querySelector('.reviews-error').style.display = 'block';
+    });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Minimal Reviews",
+  "target": "section",
+  "templates": ["product"],
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Produto",
+      "autofill": true
+    },
+    {
+      "type": "color",
+      "id": "colour",
+      "label": "Cor das Estrelas",
+      "default": "#FFD700"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Mostrar Lista de Reviews",
+      "default": true
+    }
+  ]
+}
+{% endschema %}
+
