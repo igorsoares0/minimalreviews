@@ -1,14 +1,4 @@
 {
-    "buildCommand": "npm run build",
-    "outputDirectory": "build",
-    "installCommand": "npm install && npx prisma generate",
-    "framework": "remix",
-    "functions": {
-      "app/entry.server.tsx": {
-        "includeFiles": "prisma/**"
-      }
-    },
-    "env": {
-      "NODE_ENV": "production"
-    }
-  }
+  "buildCommand": "npm run vercel-build",
+  "installCommand": "npm install"
+}
