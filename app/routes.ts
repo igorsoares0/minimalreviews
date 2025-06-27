@@ -39,9 +39,6 @@ export default [
   route("api/test-webhook", "routes/api.test-webhook.tsx"),
   route("api/process-emails", "routes/api.process-emails.tsx"),
 
-  // Test Route (remove in production)
-  route("app/test-review", "routes/test-review.tsx"),
-
   // Rota do App Proxy - consome reviews do backend externo
   route("apps/minimalreviews/api/reviews", "routes/api.proxy.reviews.tsx"),
 ] satisfies RouteConfig;
