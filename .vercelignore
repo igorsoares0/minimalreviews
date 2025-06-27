@@ -1,6 +1,9 @@
 # Development files
-*.js
-*.cjs
+test-*.js
+check-*.js
+debug-*.js
+simulate-*.js
+fix-*.js
 !vite.config.ts
 !app/**
 

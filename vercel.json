@@ -1,4 +1,11 @@
 {
-  "buildCommand": "npm run vercel-build",
-  "installCommand": "npm install"
+  "buildCommand": "prisma generate && remix vite:build",
+  "framework": "remix",
+  "installCommand": "npm install",
+  "outputDirectory": "build/client",
+  "build": {
+    "env": {
+      "DATABASE_URL": "file:./data.db"
+    }
+  }
 }
