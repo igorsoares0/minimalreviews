@@ -3,7 +3,7 @@
 client_id = "113010875edcf85ffa337195c5b2275a"
 name = "minimalreviews"
 handle = "minimalreviews"
-application_url = "https://cheaper-effectiveness-schemes-hopefully.trycloudflare.com"
+application_url = "https://minimalreviews.vercel.app"
 embedded = true
 
 [build]
@@ -35,7 +35,11 @@ api_version = "2025-04"
 scopes = "read_customers,read_orders,read_products,write_customers,write_orders,write_products"
 
 [auth]
-redirect_urls = ["https://cheaper-effectiveness-schemes-hopefully.trycloudflare.com/auth/callback", "https://cheaper-effectiveness-schemes-hopefully.trycloudflare.com/auth/shopify/callback", "https://cheaper-effectiveness-schemes-hopefully.trycloudflare.com/api/auth/callback"]
+redirect_urls = [
+  "https://minimalreviews.vercel.app/auth/callback", 
+  "https://minimalreviews.vercel.app/auth/shopify/callback", 
+  "https://minimalreviews.vercel.app/api/auth/callback"
+]
 
 [app_proxy]
 url = "https://cheaper-effectiveness-schemes-hopefully.trycloudflare.com/apps/minimalreviews"

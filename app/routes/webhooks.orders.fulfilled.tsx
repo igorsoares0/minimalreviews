@@ -2,13 +2,33 @@ import type { ActionFunctionArgs } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
 import { EmailService } from "../lib/email.server";
+import { createHmac } from "crypto";
+import { json } from "@remix-run/node";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { shop, payload, topic, admin } = await authenticate.webhook(request);
-
-  console.log(`Received ${topic} webhook for ${shop}`);
-
   try {
+    // IMPORTANTE: Clonar request antes de consumir o body
+    const reqClone = request.clone();
+    const rawPayload = await reqClone.text();
+    
+    // Verificar HMAC manualmente
+    const signature = request.headers.get("x-shopify-hmac-sha256");
+    const generatedSignature = createHmac("SHA256", process.env.SHOPIFY_API_SECRET!)
+      .update(rawPayload)
+      .digest("base64");
+    
+    if (signature !== generatedSignature) {
+      console.error("❌ Invalid HMAC signature");
+      return new Response("Invalid signature", { status: 401 });
+    }
+    
+    console.log("✅ HMAC verification successful");
+    
+    // Agora usar authenticate.webhook normalmente
+    const { shop, payload, topic, admin } = await authenticate.webhook(request);
+    
+    console.log(`Received ${topic} webhook for ${shop}`);
+
     const order = payload as any;
     
     // Buscar configurações da loja
@@ -148,6 +168,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   } catch (error) {
     console.error("❌ Erro no webhook orders/fulfilled:", error);
-    return new Response();
+    return new Response(`Webhook error: ${error.message}`, { status: 500 });
   }
 }; 
