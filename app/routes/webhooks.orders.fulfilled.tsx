@@ -69,11 +69,41 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const customerId = order.customer?.id ? order.customer.id.toString() : null;
 
     // Tentar extrair email de diferentes locais possíveis
-    const customerEmail = order.customer?.email || 
-                         order.email ||
-                         order.contact_email ||
-                         order.billing_address?.email ||
-                         order.shipping_address?.email;
+    let customerEmail = order.customer?.email || 
+                       order.email ||
+                       order.contact_email ||
+                       order.billing_address?.email ||
+                       order.shipping_address?.email;
+
+    // Se não encontrou email e temos um customer ID, buscar via GraphQL
+    if (!customerEmail && customerId && admin) {
+      try {
+        console.log("🔍 Buscando email do cliente via GraphQL...");
+        
+        const customerQuery = `
+          query getCustomer($id: ID!) {
+            customer(id: $id) {
+              email
+              firstName
+              lastName
+            }
+          }
+        `;
+
+        const customerResponse = await admin.graphql(customerQuery, {
+          variables: { id: `gid://shopify/Customer/${customerId}` },
+        });
+
+        const customerData = await customerResponse.json();
+        
+        if (customerData.data?.customer?.email) {
+          customerEmail = customerData.data.customer.email;
+          console.log("✅ Email do cliente encontrado via GraphQL:", customerEmail);
+        }
+      } catch (error) {
+        console.error("❌ Erro ao buscar dados do cliente via GraphQL:", error);
+      }
+    }
 
     const customerName = order.customer ? 
       `${order.customer.first_name || ''} ${order.customer.last_name || ''}`.trim() : 
@@ -85,6 +115,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     console.log("🔍 Order debug info:", {
       orderId: order.id,
       hasCustomer: !!order.customer,
+      customerId: customerId,
       customerEmail: order.customer?.email,
       orderEmail: order.email,
       contactEmail: order.contact_email,
