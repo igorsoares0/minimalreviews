@@ -43,9 +43,26 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return new Response();
     }
 
-    // Verificar se temos as configurações de email necessárias
-    if (!settings.emailApiKey || !settings.emailFromAddress) {
-      console.log("Email configuration incomplete for shop:", shop);
+    // Verificar se temos as configurações de email necessárias baseado no provedor
+    let emailConfigValid = false;
+
+    if (settings.emailProvider === "mailtrap") {
+      // Para Mailtrap, precisamos do token e inbox ID
+      emailConfigValid = !!(settings.mailtrapToken && settings.mailtrapInboxId && settings.emailFromAddress);
+    } else {
+      // Para outros provedores (SendGrid, Mailgun), precisamos da API Key
+      emailConfigValid = !!(settings.emailApiKey && settings.emailFromAddress);
+    }
+
+    if (!emailConfigValid) {
+      console.log(`Email configuration incomplete for shop: ${shop}. Provider: ${settings.emailProvider}`);
+      console.log("Settings check:", {
+        provider: settings.emailProvider,
+        hasApiKey: !!settings.emailApiKey,
+        hasMailtrapToken: !!settings.mailtrapToken,
+        hasMailtrapInboxId: !!settings.mailtrapInboxId,
+        hasFromAddress: !!settings.emailFromAddress,
+      });
       return new Response();
     }
 
@@ -168,6 +185,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   } catch (error) {
     console.error("❌ Erro no webhook orders/fulfilled:", error);
-    return new Response(`Webhook error: ${error.message}`, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(`Webhook error: ${errorMessage}`, { status: 500 });
   }
 }; 
