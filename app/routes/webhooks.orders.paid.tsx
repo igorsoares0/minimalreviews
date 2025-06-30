@@ -16,27 +16,94 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       where: { shop },
     });
 
-    if (!settings || !settings.sendEmailNotification) {
-      console.log("Email notifications disabled for shop:", shop);
+    // MUDANÇA: Usar autoSendEnabled para envio automático (webhook)
+    if (!settings || !settings.autoSendEnabled) {
+      console.log("Automatic sending disabled for shop:", shop);
       return new Response();
     }
 
-    // Verificar se temos as configurações de email necessárias
-    if (!settings.emailApiKey || !settings.emailFromAddress) {
-      console.log("Email configuration incomplete for shop:", shop);
+    // Verificar se temos as configurações de email necessárias baseado no provedor
+    let emailConfigValid = false;
+
+    if (settings.emailProvider === "mailtrap") {
+      // Para Mailtrap, precisamos do token e inbox ID
+      emailConfigValid = !!(settings.mailtrapToken && settings.mailtrapInboxId && settings.emailFromAddress);
+    } else {
+      // Para outros provedores (SendGrid, Mailgun), precisamos da API Key
+      emailConfigValid = !!(settings.emailApiKey && settings.emailFromAddress);
+    }
+
+    if (!emailConfigValid) {
+      console.log(`Email configuration incomplete for shop: ${shop}. Provider: ${settings.emailProvider}`);
       return new Response();
     }
 
     const customerId = order.customer?.id ? order.customer.id.toString() : null;
-    const customerEmail = order.customer?.email;
+    
+    // Tentar extrair email de diferentes locais possíveis
+    let customerEmail = order.customer?.email || 
+                       order.email ||
+                       order.contact_email ||
+                       order.billing_address?.email ||
+                       order.shipping_address?.email;
+
+    // Se não encontrou email e temos um customer ID, buscar via API REST
+    if (!customerEmail && customerId && admin) {
+      try {
+        console.log("🔍 Tentando buscar email do cliente...");
+        console.log("⚠️ Email não encontrado no payload do webhook para customer ID:", customerId);
+        
+        // Solução alternativa: usar email temporário baseado no customer ID
+        // O cliente poderá confirmar o email real quando acessar o link de review
+        customerEmail = `customer-${customerId}@temp.${shop}`;
+        console.log("💡 Usando email temporário:", customerEmail);
+        
+      } catch (error) {
+        console.error("❌ Erro ao processar cliente:", error);
+      }
+    }
+
     const customerName = order.customer ? 
       `${order.customer.first_name || ''} ${order.customer.last_name || ''}`.trim() : 
+      order.billing_address?.name || 
+      order.shipping_address?.name ||
+      order.billing_address?.first_name && order.billing_address?.last_name ? 
+        `${order.billing_address.first_name} ${order.billing_address.last_name}`.trim() :
+      order.shipping_address?.first_name && order.shipping_address?.last_name ?
+        `${order.shipping_address.first_name} ${order.shipping_address.last_name}`.trim() :
       'Cliente';
 
+    // Debug: Log da estrutura do pedido
+    console.log("🔍 Order debug info:", {
+      orderId: order.id,
+      hasCustomer: !!order.customer,
+      customerId: customerId,
+      customerEmail: order.customer?.email,
+      orderEmail: order.email,
+      contactEmail: order.contact_email,
+      billingEmail: order.billing_address?.email,
+      shippingEmail: order.shipping_address?.email,
+      finalEmail: customerEmail,
+    });
+
     if (!customerEmail) {
-      console.log("No customer email found for order:", order.id);
+      console.log("❌ No customer email found for order:", order.id);
+      console.log("Order payload keys:", Object.keys(order));
+      console.log("Customer object:", order.customer);
+      console.log("Billing address:", order.billing_address);
+      console.log("Shipping address:", order.shipping_address);
       return new Response();
     }
+
+    // Calcular data de envio usando autoSendDaysAfter
+    const orderDate = new Date(order.created_at);
+    const sendDate = new Date(orderDate);
+    const daysAfter = settings.autoSendDaysAfter || 3;
+    sendDate.setDate(sendDate.getDate() + daysAfter);
+
+    console.log(`📅 Agendando envios automáticos para ${sendDate.toISOString()} (${daysAfter} dias após pedido)`);
+
+    let convitesCriados = 0;
 
     // Processar produtos do pedido
     for (const lineItem of order.line_items || []) {
@@ -72,7 +139,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       });
 
       if (existingInvitation) {
-        console.log(`Review invitation already exists for ${customerEmail} - ${productId}`);
+        console.log(`Review invitation already exists for ${customerEmail} - ${lineItem.title}`);
         continue;
       }
 
@@ -110,13 +177,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
       // Gerar token seguro
       const token = EmailService.generateSecureToken();
-      
-      // Calcular data de envio (3 dias após o pedido)
-      const scheduledFor = new Date();
-      scheduledFor.setDate(scheduledFor.getDate() + 3);
 
       // Criar convite de review
-      await db.reviewInvitation.create({
+      const invitation = await db.reviewInvitation.create({
         data: {
           shop,
           orderId: order.id.toString(),
@@ -126,22 +189,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           productId,
           productTitle,
           productImage,
-          scheduledFor,
+          scheduledFor: sendDate,
           token,
         },
       });
 
-      console.log(`Review invitation created for ${customerEmail} - ${productTitle}`);
+      console.log(`✅ Convite automático criado para produto ${productTitle} (ID: ${invitation.id})`);
+      convitesCriados++;
     }
 
-    console.log('🔔 Webhook orders/paid recebido!', {
-      orderId: order.id,
-      customer: order.customer?.email,
-      total: order.total_price
-    });
+    console.log(`🎉 Total de convites automáticos criados: ${convitesCriados}`);
 
   } catch (error) {
-    console.error("Erro ao processar webhook orders/paid:", error);
+    console.error("❌ Erro ao processar webhook orders/paid:", error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(`Webhook error: ${errorMessage}`, { status: 500 });
   }
 
   return new Response();

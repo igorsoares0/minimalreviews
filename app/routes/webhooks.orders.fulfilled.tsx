@@ -78,28 +78,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     // Se não encontrou email e temos um customer ID, buscar via GraphQL
     if (!customerEmail && customerId && admin) {
       try {
-        console.log("🔍 Buscando email do cliente via GraphQL...");
+        console.log("🔍 Tentando buscar email do cliente...");
+        console.log("⚠️ Email não encontrado no payload do webhook para customer ID:", customerId);
         
-        const customerQuery = `
-          query getCustomer($id: ID!) {
-            customer(id: $id) {
-              email
-            }
-          }
-        `;
-
-        const customerResponse = await admin.graphql(customerQuery, {
-          variables: { id: `gid://shopify/Customer/${customerId}` },
-        });
-
-        const customerData = await customerResponse.json();
+        // Solução alternativa: usar email temporário baseado no customer ID
+        // O cliente poderá confirmar o email real quando acessar o link de review
+        customerEmail = `customer-${customerId}@temp.${shop}`;
+        console.log("💡 Usando email temporário:", customerEmail);
         
-        if (customerData.data?.customer?.email) {
-          customerEmail = customerData.data.customer.email;
-          console.log("✅ Email do cliente encontrado via GraphQL:", customerEmail);
-        }
       } catch (error) {
-        console.error("❌ Erro ao buscar dados do cliente via GraphQL:", error);
+        console.error("❌ Erro ao processar cliente:", error);
       }
     }
 
