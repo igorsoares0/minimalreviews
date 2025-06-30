@@ -84,8 +84,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           query getCustomer($id: ID!) {
             customer(id: $id) {
               email
-              firstName
-              lastName
             }
           }
         `;
@@ -109,6 +107,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       `${order.customer.first_name || ''} ${order.customer.last_name || ''}`.trim() : 
       order.billing_address?.name || 
       order.shipping_address?.name ||
+      order.billing_address?.first_name && order.billing_address?.last_name ? 
+        `${order.billing_address.first_name} ${order.billing_address.last_name}`.trim() :
+      order.shipping_address?.first_name && order.shipping_address?.last_name ?
+        `${order.shipping_address.first_name} ${order.shipping_address.last_name}`.trim() :
       'Cliente';
 
     // Debug: Log da estrutura do pedido para entender o payload
@@ -122,6 +124,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       billingEmail: order.billing_address?.email,
       shippingEmail: order.shipping_address?.email,
       finalEmail: customerEmail,
+    });
+
+    // Debug adicional: mostrar endereços completos
+    console.log("🏠 Address debug:", {
+      billingAddress: order.billing_address,
+      shippingAddress: order.shipping_address,
     });
 
     if (!customerEmail) {
