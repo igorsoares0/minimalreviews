@@ -47,19 +47,39 @@ export const action = async ({ request }: ActionFunctionArgs) => {
                        order.billing_address?.email ||
                        order.shipping_address?.email;
 
-    // Se não encontrou email e temos um customer ID, buscar via API REST
+    // Se não encontrou email e temos um customer ID, buscar via GraphQL
     if (!customerEmail && customerId && admin) {
       try {
-        console.log("🔍 Tentando buscar email do cliente...");
-        console.log("⚠️ Email não encontrado no payload do webhook para customer ID:", customerId);
+        console.log("🔍 Buscando email do cliente via GraphQL...");
         
-        // Solução alternativa: usar email temporário baseado no customer ID
-        // O cliente poderá confirmar o email real quando acessar o link de review
-        customerEmail = `customer-${customerId}@temp.${shop}`;
-        console.log("💡 Usando email temporário:", customerEmail);
+        const customerQuery = `
+          query getCustomer($id: ID!) {
+            customer(id: $id) {
+              email
+              firstName
+              lastName
+            }
+          }
+        `;
+
+        const customerResponse = await admin.graphql(customerQuery, {
+          variables: { id: `gid://shopify/Customer/${customerId}` },
+        });
+
+        const customerData = await customerResponse.json();
         
+        if (customerData.data?.customer?.email) {
+          customerEmail = customerData.data.customer.email;
+          console.log("✅ Email do cliente encontrado via GraphQL:", customerEmail);
+          
+          // Também atualizar o nome se disponível
+          if (customerData.data.customer.firstName || customerData.data.customer.lastName) {
+            customerName = `${customerData.data.customer.firstName || ''} ${customerData.data.customer.lastName || ''}`.trim();
+          }
+        }
       } catch (error) {
-        console.error("❌ Erro ao processar cliente:", error);
+        console.error("❌ Erro ao buscar dados do cliente via GraphQL:", error);
+        // Se falhar, continuar sem email (será pulado)
       }
     }
 
