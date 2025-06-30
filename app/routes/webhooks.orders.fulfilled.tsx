@@ -67,13 +67,37 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     const customerId = order.customer?.id ? order.customer.id.toString() : null;
-    const customerEmail = order.customer?.email || order.email;
+
+    // Tentar extrair email de diferentes locais possíveis
+    const customerEmail = order.customer?.email || 
+                         order.email ||
+                         order.contact_email ||
+                         order.billing_address?.email ||
+                         order.shipping_address?.email;
+
     const customerName = order.customer ? 
       `${order.customer.first_name || ''} ${order.customer.last_name || ''}`.trim() : 
-      order.billing_address?.name || 'Cliente';
+      order.billing_address?.name || 
+      order.shipping_address?.name ||
+      'Cliente';
+
+    // Debug: Log da estrutura do pedido para entender o payload
+    console.log("🔍 Order debug info:", {
+      orderId: order.id,
+      hasCustomer: !!order.customer,
+      customerEmail: order.customer?.email,
+      orderEmail: order.email,
+      contactEmail: order.contact_email,
+      billingEmail: order.billing_address?.email,
+      shippingEmail: order.shipping_address?.email,
+      finalEmail: customerEmail,
+    });
 
     if (!customerEmail) {
-      console.log("No customer email found for order:", order.id);
+      console.log("❌ No customer email found for order:", order.id);
+      console.log("Order payload keys:", Object.keys(order));
+      console.log("Customer object:", order.customer);
+      console.log("Billing address:", order.billing_address);
       return new Response();
     }
 
