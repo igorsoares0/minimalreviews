@@ -5,5 +5,15 @@
   "installCommand": "npm install",
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/process-emails",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/keep-alive",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }
