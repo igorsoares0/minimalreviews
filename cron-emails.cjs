@@ -23,7 +23,7 @@ const http = require('http');
 
 const config = {
   // URL do Minimal Reviews (onde está a rota /api/process-emails)
-  appUrl: process.env.APP_URL || 'http://localhost:52402',
+  appUrl: process.env.APP_URL || 'https://minimalreviews.vercel.app',
   
   // Token de segurança (opcional, para maior segurança)
   cronSecret: process.env.CRON_SECRET || null,
