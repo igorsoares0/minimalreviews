@@ -38,8 +38,28 @@ export async function action({ request }: ActionFunctionArgs) {
           continue;
         }
 
-        if (!settings.emailApiKey || !settings.emailFromAddress) {
-          console.log(`⚠️ Configurações de email incompletas para ${invitation.shop}`);
+        // Verificar configurações específicas do provedor
+        let configValid = true;
+        const provider = settings.emailProvider || 'sendgrid';
+        
+        if (provider === 'mailtrap') {
+          if (!settings.mailtrapToken || !settings.mailtrapInboxId) {
+            console.log(`⚠️ Configurações de Mailtrap incompletas para ${invitation.shop}`);
+            configValid = false;
+          }
+        } else if (provider === 'sendgrid' || provider === 'mailgun') {
+          if (!settings.emailApiKey) {
+            console.log(`⚠️ API Key não configurada para ${invitation.shop} (${provider})`);
+            configValid = false;
+          }
+        }
+        
+        if (!settings.emailFromAddress) {
+          console.log(`⚠️ Email de origem não configurado para ${invitation.shop}`);
+          configValid = false;
+        }
+        
+        if (!configValid) {
           continue;
         }
 
