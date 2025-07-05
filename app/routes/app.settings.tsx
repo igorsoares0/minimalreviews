@@ -132,9 +132,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   // Atualizar campos extras usando SQL raw (apenas para campos que não estão no schema principal)
   await db.$executeRaw`
-    UPDATE ReviewSettings 
-    SET mailtrapToken = ${emailProvider === "mailtrap" ? (mailtrapToken || null) : null}, 
-        mailtrapInboxId = ${emailProvider === "mailtrap" ? (mailtrapInboxId || null) : null}
+    UPDATE "ReviewSettings" 
+    SET "mailtrapToken" = ${emailProvider === "mailtrap" ? (mailtrapToken || null) : null}, 
+        "mailtrapInboxId" = ${emailProvider === "mailtrap" ? (mailtrapInboxId || null) : null}
     WHERE shop = ${shop}
   `;
 
