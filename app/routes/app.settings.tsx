@@ -38,9 +38,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
-  const formData = await request.formData();
+  try {
+    const { session } = await authenticate.admin(request);
+    const shop = session.shop;
+    const formData = await request.formData();
 
   const autoPublish = formData.get("autoPublish") === "on";
   const requireApproval = formData.get("requireApproval") === "on";
@@ -152,6 +153,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     success: true, 
     message: "Configurações salvas com sucesso!" 
   });
+  } catch (error) {
+    console.error("❌ Erro ao salvar configurações:", error);
+    return json({ 
+      success: false, 
+      message: "Erro ao salvar configurações. Por favor, tente novamente.",
+      error: error instanceof Error ? error.message : "Erro desconhecido"
+    }, { status: 500 });
+  }
 };
 
 export default function Settings() {
