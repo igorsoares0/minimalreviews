@@ -188,6 +188,8 @@ export default function Settings() {
   ];
 
   const daysAfterOptions = [
+    { label: "1 dia", value: "1" },
+    { label: "2 dias", value: "2" },
     { label: "3 dias", value: "3" },
     { label: "7 dias", value: "7" },
     { label: "14 dias", value: "14" },
