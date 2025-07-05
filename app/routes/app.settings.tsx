@@ -188,6 +188,7 @@ export default function Settings() {
   ];
 
   const daysAfterOptions = [
+    { label: "5 minutos (teste)", value: "0.0035" },
     { label: "1 dia", value: "1" },
     { label: "2 dias", value: "2" },
     { label: "3 dias", value: "3" },
