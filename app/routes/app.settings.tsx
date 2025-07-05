@@ -64,7 +64,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   // Configurações de envio automático
   const autoSendEnabledValue = formData.get("autoSendEnabled") as string;
   const autoSendEnabled = autoSendEnabledValue === "on";
-  const autoSendDaysAfter = parseInt(formData.get("autoSendDaysAfter") as string) || 7;
+  const autoSendDaysAfter = parseFloat(formData.get("autoSendDaysAfter") as string) || 7;
   const autoSendMaxReminders = parseInt(formData.get("autoSendMaxReminders") as string) || 2;
   const autoSendReminderDays = parseInt(formData.get("autoSendReminderDays") as string) || 7;
 
