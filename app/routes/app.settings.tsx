@@ -197,14 +197,14 @@ export default function Settings() {
   ];
 
   const daysAfterOptions = [
-    { label: "5 minutos (teste)", value: "0.0035" },
     { label: "1 dia", value: "1" },
     { label: "2 dias", value: "2" },
     { label: "3 dias", value: "3" },
+    { label: "5 dias", value: "5" },
     { label: "7 dias", value: "7" },
     { label: "14 dias", value: "14" },
-    { label: "21 dias", value: "21" },
     { label: "30 dias", value: "30" },
+    { label: "5 minutos (teste)", value: "0.003" },
   ];
 
   const maxRemindersOptions = [
