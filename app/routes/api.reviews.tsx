@@ -156,25 +156,31 @@ export const loader = async ({ request }: any) => {
     
     console.log("🔢 IDs de produto normalizados:", productIdVariants);
 
-    // @ts-ignore - campo mediaUrls ainda não no client
-    const reviews = await db.review.findMany({
-      where: {
-        shop,
-        productId: { in: productIdVariants },
-        published: true,
-      },
-      orderBy: { createdAt: "desc" },
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      select: {
-        id: true,
-        customerName: true,
-        rating: true,
-        title: true,
-        content: true,
-        createdAt: true,
-        mediaUrls: true,
-      } as any,
-    });
+    // Buscar reviews com tratamento de erro melhorado
+    let reviews = [];
+    try {
+      reviews = await db.review.findMany({
+        where: {
+          shop,
+          productId: { in: productIdVariants },
+          published: true,
+        },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          customerName: true,
+          rating: true,
+          title: true,
+          content: true,
+          createdAt: true,
+          mediaUrls: true,
+        },
+      });
+    } catch (dbError) {
+      console.error("Erro ao buscar reviews do banco:", dbError);
+      // Retornar dados vazios em caso de erro do banco
+      reviews = [];
+    }
 
     console.log(`📊 Encontradas ${reviews.length} reviews para o produto`);
 
@@ -203,7 +209,11 @@ export const loader = async ({ request }: any) => {
     }, { headers });
   } catch (error) {
     console.error("Erro ao buscar reviews:", error);
-    return json({ error: "Erro interno do servidor" }, { 
+    // Retornar resposta de erro mais informativa
+    return json({ 
+      error: "Erro interno do servidor",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    }, { 
       status: 500,
       headers
     });
