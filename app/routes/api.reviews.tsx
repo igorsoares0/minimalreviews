@@ -113,8 +113,27 @@ export const loader = async ({ request }: any) => {
 
   console.log("🔍 API Reviews - Parâmetros:", { shop, productIdParam });
 
+  // Adicionar headers CORS para permitir acesso de qualquer origem
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Content-Type": "application/json",
+  };
+
+  // Verificar se é uma requisição OPTIONS (preflight)
+  if (request.method.toLowerCase() === "options") {
+    return new Response(null, { 
+      status: 204, 
+      headers 
+    });
+  }
+
   if (!shop || !productIdParam) {
-    return json({ error: "Parâmetros shop e productId são obrigatórios" }, { status: 400 });
+    return json({ error: "Parâmetros shop e productId são obrigatórios" }, { 
+      status: 400,
+      headers
+    });
   }
 
   try {
@@ -181,9 +200,12 @@ export const loader = async ({ request }: any) => {
         averageRating: Math.round(averageRating * 10) / 10,
         ratingDistribution,
       },
-    });
+    }, { headers });
   } catch (error) {
     console.error("Erro ao buscar reviews:", error);
-    return json({ error: "Erro interno do servidor" }, { status: 500 });
+    return json({ error: "Erro interno do servidor" }, { 
+      status: 500,
+      headers
+    });
   }
 }; 
