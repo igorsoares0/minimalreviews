@@ -111,10 +111,7 @@ export const loader = async ({ request }: any) => {
   const shop = url.searchParams.get("shop");
   const productIdParam = url.searchParams.get("productId");
 
-  const productIdNumeric = productIdParam?.replace("gid://shopify/Product/", "");
-  const productIdVariants = productIdParam
-    ? ([productIdParam, productIdNumeric].filter(Boolean) as string[])
-    : [];
+  console.log("🔍 API Reviews - Parâmetros:", { shop, productIdParam });
 
   if (!shop || !productIdParam) {
     return json({ error: "Parâmetros shop e productId são obrigatórios" }, { status: 400 });
@@ -126,6 +123,19 @@ export const loader = async ({ request }: any) => {
       where: { shop },
     });
     const template = (settings as any)?.reviewTemplate || "classic";
+
+    // Normalizar o ID do produto para diferentes formatos possíveis
+    const productIdNumeric = productIdParam?.replace("gid://shopify/Product/", "");
+    const productIdWithPrefix = productIdNumeric ? `gid://shopify/Product/${productIdNumeric}` : null;
+    
+    // Criar array com todas as variantes possíveis do ID
+    const productIdVariants = [
+      productIdParam,
+      productIdNumeric,
+      productIdWithPrefix
+    ].filter(Boolean) as string[];
+    
+    console.log("🔢 IDs de produto normalizados:", productIdVariants);
 
     // @ts-ignore - campo mediaUrls ainda não no client
     const reviews = await db.review.findMany({
@@ -146,6 +156,8 @@ export const loader = async ({ request }: any) => {
         mediaUrls: true,
       } as any,
     });
+
+    console.log(`📊 Encontradas ${reviews.length} reviews para o produto`);
 
     // Calcular estatísticas
     const totalReviews = reviews.length;
