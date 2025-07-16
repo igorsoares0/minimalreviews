@@ -107,10 +107,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export const loader = async ({ request }: any) => {
+  const startTime = Date.now();
   const url = new URL(request.url);
   const shop = url.searchParams.get("shop");
   const productIdParam = url.searchParams.get("productId");
 
+  console.log("🔍 INTERNAL API REVIEWS ROUTE CALLED");
+  console.log("📍 Request URL:", request.url);
+  console.log("🕐 Timestamp:", new Date().toISOString());
+  console.log("🌍 Environment:", process.env.NODE_ENV);
+  console.log("🔑 Query Params:", Object.fromEntries(url.searchParams));
+  console.log("📋 Request Headers:", Object.fromEntries(request.headers.entries()));
   console.log("🔍 API Reviews - Parâmetros:", { shop, productIdParam });
 
   // Adicionar headers CORS para permitir acesso de qualquer origem

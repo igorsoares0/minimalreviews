@@ -38,6 +38,7 @@ export default [
   route("api/add-test-review", "routes/api.add-test-review.tsx"),
   route("api/test-webhook", "routes/api.test-webhook.tsx"),
   route("api/process-emails", "routes/api.process-emails.tsx"),
+  route("api/debug", "routes/api.debug.tsx"),
 
   // Rota do App Proxy - consome reviews do backend externo
   route("apps/minimalreviews/api/reviews", "routes/api.proxy.reviews.tsx"),
