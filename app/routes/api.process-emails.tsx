@@ -33,9 +33,8 @@ export async function action({ request }: ActionFunctionArgs) {
           where: { shop: invitation.shop }
         });
 
-        // Verificar se o envio de emails está habilitado (manual OU automático)
-        if (!settings || (!settings.sendEmailNotification && !settings.autoSendEnabled)) {
-          console.log(`⚠️ Envio de email desativado para ${invitation.shop} (sendEmailNotification: ${settings?.sendEmailNotification}, autoSendEnabled: ${settings?.autoSendEnabled})`);
+        if (!settings || !settings.sendEmailNotification) {
+          console.log(`⚠️ Envio de email desativado para ${invitation.shop}`);
           continue;
         }
 
