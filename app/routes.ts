@@ -42,7 +42,3 @@ export default [
   // Rota do App Proxy - consome reviews do backend externo
   route("apps/minimalreviews/api/reviews", "routes/api.proxy.reviews.tsx"),
 ] satisfies RouteConfig;
-
-  // Rota do App Proxy - consome reviews do backend externo
-  route("apps/minimalreviews/api/reviews", "routes/api.proxy.reviews.tsx"),
-] satisfies RouteConfig;
