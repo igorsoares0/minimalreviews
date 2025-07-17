@@ -18,7 +18,6 @@ export default [
       route("reviews", "routes/app.reviews.tsx"),
       route("settings", "routes/app.settings.tsx"),
       route("help", "routes/app.help.tsx"),
-      route("add-review", "routes/app.add-review.tsx"),
       route("templates", "routes/app.templates.tsx"),
       route("api/reviews", "routes/api.reviews.tsx"),
     ]),

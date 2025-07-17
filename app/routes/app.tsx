@@ -25,7 +25,6 @@ export default function App() {
           Dashboard
         </Link>
         <Link to="/app/reviews">Reviews</Link>
-        <Link to="/app/add-review">Adicionar Review</Link>
         <Link to="/app/settings">Configurações</Link>
         <Link to="/app/templates">Templates</Link>
         <Link to="/app/help">Ajuda</Link>
