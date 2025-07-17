@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useFetcher, useSearchParams, useActionData, useSubmit } from "@remix-run/react";
+import { useLoaderData, useSearchParams, useActionData, useSubmit } from "@remix-run/react";
 import {
   Page,
   Layout,
@@ -12,7 +12,6 @@ import {
   DataTable,
   EmptyState,
 
-  Filters,
   TextField,
   Select,
   Modal,
@@ -359,13 +358,7 @@ export default function Reviews() {
   const [syncingReviews, setSyncingReviews] = useState(false);
   const [syncMessage, setSyncMessage] = useState("");
   
-  // Estados para teste de conectividade
-  const [testingRws, setTestingRws] = useState(false);
-  const [testMessage, setTestMessage] = useState("");
   
-  // Estados para criar reviews de teste
-  const [creatingTestReviews, setCreatingTestReviews] = useState(false);
-  const [testReviewMessage, setTestReviewMessage] = useState("");
   
   // Estados para os campos do formulário manual
   const [productId, setProductId] = useState("");
@@ -453,67 +446,7 @@ export default function Reviews() {
     }
   };
 
-  const handleTestRws = async () => {
-    setTestingRws(true);
-    setTestMessage("");
-    
-    try {
-      const response = await fetch('/api/test-rws', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          shop: window.shopify?.config?.shop || 'unknown-shop'
-        })
-      });
 
-      const result = await response.json();
-      
-      if (result.success) {
-        setTestMessage(`✅ ${result.message}`);
-      } else {
-        setTestMessage(`❌ ${result.error}`);
-      }
-    } catch (error) {
-      console.error('Erro ao testar RWS:', error);
-      setTestMessage('❌ Erro ao testar conectividade com RWS.');
-    } finally {
-      setTestingRws(false);
-    }
-  };
-
-  const handleCreateTestReviews = async () => {
-    setCreatingTestReviews(true);
-    setTestReviewMessage("");
-    
-    try {
-      const response = await fetch('/api/add-test-review', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          shop: window.shopify?.config?.shop || 'unknown-shop'
-        })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setTestReviewMessage(`✅ ${result.message}`);
-        // Recarregar a página para mostrar as novas reviews
-        window.location.reload();
-      } else {
-        setTestReviewMessage(`❌ Erro: ${result.error}`);
-      }
-    } catch (error) {
-      console.error('Erro ao criar reviews de teste:', error);
-      setTestReviewMessage('❌ Erro ao criar reviews de teste.');
-    } finally {
-      setCreatingTestReviews(false);
-    }
-  };
 
   const handleFiltersChange = (filters: any) => {
     const newParams = new URLSearchParams(searchParams);
@@ -653,16 +586,6 @@ export default function Reviews() {
             </ClientOnly>
           )}
 
-          {testMessage && (
-            <ClientOnly>
-              <Banner 
-                tone={testMessage.includes('❌') ? "critical" : "success"} 
-                onDismiss={() => setTestMessage("")}
-              >
-                <p>{testMessage}</p>
-              </Banner>
-            </ClientOnly>
-          )}
 
           <Card>
             <BlockStack gap="400">
@@ -672,13 +595,6 @@ export default function Reviews() {
                 </Text>
                 <ClientOnly fallback={<span>Carregando...</span>}>
                   <InlineStack gap="200">
-                    <Button
-                      onClick={handleTestRws}
-                      loading={testingRws}
-                      disabled={testingRws}
-                    >
-                      {testingRws ? "Testando..." : "Testar RWS"}
-                    </Button>
                     <Button
                       onClick={handleSyncReviews}
                       loading={syncingReviews}
