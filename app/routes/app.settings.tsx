@@ -56,8 +56,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const mailtrapToken = formData.get("mailtrapToken") as string;
   const mailtrapInboxId = formData.get("mailtrapInboxId") as string;
   
-  // Configuração do backend externo
-  const externalApiUrl = formData.get("externalApiUrl") as string;
 
   // Configurações de envio automático
   const autoSendEnabledValue = formData.get("autoSendEnabled") as string;
@@ -101,7 +99,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       autoSendDaysAfter,
       autoSendMaxReminders,
       autoSendReminderDays,
-      externalApiUrl: externalApiUrl || null,
     },
     create: {
       shop,
@@ -117,7 +114,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       autoSendDaysAfter,
       autoSendMaxReminders,
       autoSendReminderDays,
-      externalApiUrl: externalApiUrl || null,
     },
   });
 
@@ -163,7 +159,6 @@ export default function Settings() {
   const [emailApiKey, setEmailApiKey] = useState(settings.emailApiKey || "");
   const [emailFromName, setEmailFromName] = useState(settings.emailFromName);
   const [emailFromAddress, setEmailFromAddress] = useState(settings.emailFromAddress || "");
-  const [externalApiUrl, setExternalApiUrl] = useState((settings as any).externalApiUrl || "http://localhost:3000/api");
 
   // Estados para envio automático
   const [autoSendEnabled, setAutoSendEnabled] = useState((settings as any).autoSendEnabled || false);
@@ -338,32 +333,6 @@ export default function Settings() {
                 </BlockStack>
               </Card>
 
-              <Card>
-                <BlockStack gap="400">
-                  <Text as="h2" variant="headingMd">
-                    Backend Externo de Reviews
-                  </Text>
-                  <ClientOnly>
-                    <Banner tone="info">
-                      <p>
-                        Configure a URL do seu backend externo para onde as reviews serão enviadas.
-                        O sistema se conectará com sua API para armazenar e gerenciar as avaliações.
-                      </p>
-                    </Banner>
-                  </ClientOnly>
-                  <FormLayout>
-                    <TextField
-                      label="URL da API Externa"
-                      value={externalApiUrl}
-                      onChange={setExternalApiUrl}
-                      name="externalApiUrl"
-                      helpText="URL base da sua API de reviews (ex: http://localhost:3000/api)"
-                      placeholder="http://localhost:3000/api"
-                      autoComplete="off"
-                    />
-                  </FormLayout>
-                </BlockStack>
-              </Card>
 
               <Card>
                 <BlockStack gap="400">

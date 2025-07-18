@@ -282,8 +282,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
       const emailService = new EmailService(emailConfig);
       
-      // URL base do RWS (da configuração ou variável de ambiente)
-      const rwsBaseUrl = (settings as any).rwsBaseUrl || process.env.RWS_BASE_URL || "http://localhost:3002";
+      // URL base do RWS (via variável de ambiente)
+      const rwsBaseUrl = process.env.RWS_BASE_URL || "https://rws-three.vercel.app";
       
       // Criar URL de review que aponta para o RWS
       const reviewUrl = EmailService.createReviewUrl(

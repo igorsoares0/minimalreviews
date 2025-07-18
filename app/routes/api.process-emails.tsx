@@ -76,7 +76,7 @@ export async function action({ request }: ActionFunctionArgs) {
         const emailService = new EmailService(emailConfig);
 
         // Criar URL de review que aponta para o RWS
-        const rwsBaseUrl = settings.rwsBaseUrl || 'http://localhost:3002';
+        const rwsBaseUrl = process.env.RWS_BASE_URL || 'https://rws-three.vercel.app';
         const reviewUrl = EmailService.createReviewUrl(
           rwsBaseUrl, 
           invitation.token, 
@@ -195,7 +195,7 @@ async function processReminders() {
         const emailService = new EmailService(emailConfig);
 
         // Criar URL de review
-        const rwsBaseUrl = settings.rwsBaseUrl || 'http://localhost:3002';
+        const rwsBaseUrl = process.env.RWS_BASE_URL || 'https://rws-three.vercel.app';
         const reviewUrl = EmailService.createReviewUrl(
           rwsBaseUrl, 
           invitation.token, 

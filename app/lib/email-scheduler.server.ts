@@ -116,11 +116,9 @@ export class EmailScheduler {
 
     const emailService = new EmailService(emailConfig);
     
-    // Usar a URL do backend externo configurada nas configurações
-    const externalApiUrl = (settings as any).externalApiUrl || process.env.EXTERNAL_REVIEW_API_URL || "http://localhost:3000";
-    // Remover /api do final se existir, pois vamos adicionar /review
-    const baseUrl = externalApiUrl.replace(/\/api$/, '');
-    const reviewUrl = EmailService.createReviewUrl(baseUrl, invitation.token);
+    // Usar a URL do RWS configurada via variável de ambiente
+    const rwsBaseUrl = process.env.RWS_BASE_URL || "https://rws-three.vercel.app";
+    const reviewUrl = EmailService.createReviewUrl(rwsBaseUrl, invitation.token);
 
     const emailData: ReviewInvitationData = {
       customerName: invitation.customerName || 'Cliente',
@@ -160,11 +158,9 @@ export class EmailScheduler {
 
     const emailService = new EmailService(emailConfig);
     
-    // Usar a URL do backend externo configurada nas configurações
-    const externalApiUrl = (settings as any).externalApiUrl || process.env.EXTERNAL_REVIEW_API_URL || "http://localhost:3000";
-    // Remover /api do final se existir, pois vamos adicionar /review
-    const baseUrl = externalApiUrl.replace(/\/api$/, '');
-    const reviewUrl = EmailService.createReviewUrl(baseUrl, invitation.token);
+    // Usar a URL do RWS configurada via variável de ambiente
+    const rwsBaseUrl = process.env.RWS_BASE_URL || "https://rws-three.vercel.app";
+    const reviewUrl = EmailService.createReviewUrl(rwsBaseUrl, invitation.token);
 
     // Para lembretes, podemos usar o mesmo template por enquanto
     // Em uma versão futura, poderíamos ter templates específicos

@@ -11,19 +11,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   try {
-    const settings = await db.reviewSettings.findUnique({
-      where: { shop }
-    });
-
     const config = {
-      externalApiUrl: (settings as any)?.externalApiUrl || "http://localhost:3000/api"
+      rwsBaseUrl: process.env.RWS_BASE_URL || "https://rws-three.vercel.app"
     };
 
     return json(config);
   } catch (error) {
     console.error("Erro ao buscar configurações:", error);
     return json({ 
-      externalApiUrl: "http://localhost:3000/api" 
+      rwsBaseUrl: process.env.RWS_BASE_URL || "https://rws-three.vercel.app"
     });
   }
 } 

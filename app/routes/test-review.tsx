@@ -9,12 +9,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const shop = session.shop;
 
     // Buscar configurações para obter a URL da API externa
-    const settings = await db.reviewSettings.findUnique({
-      where: { shop }
-    });
-    
-    const externalApiUrl = (settings as any)?.externalApiUrl || "http://localhost:3000";
-    const baseUrl = externalApiUrl.replace(/\/api$/, ''); // Remove /api se existir
+    const baseUrl = process.env.RWS_BASE_URL || "https://rws-three.vercel.app";
 
     // Criar um convite de teste
     const testToken = "test-token-" + Date.now();
@@ -41,7 +36,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       info: "O link abaixo aponta para sua aplicação Next.js, não para o app Shopify",
       token: testToken,
       reviewUrl,
-      externalApiConfigured: externalApiUrl,
+      rwsBaseUrl: baseUrl,
       invitation: {
         shop: invitation.shop,
         customerEmail: invitation.customerEmail,

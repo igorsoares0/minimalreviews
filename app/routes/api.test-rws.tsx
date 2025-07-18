@@ -15,11 +15,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     // Buscar configurações da loja para obter URL do RWS
-    const settings = await db.reviewSettings.findUnique({
-      where: { shop }
-    });
-
-    const baseUrl = (settings as any)?.rwsBaseUrl || "http://localhost:3002";
+    const baseUrl = process.env.RWS_BASE_URL || "https://rws-three.vercel.app";
     console.log("🧪 Testando conectividade com RWS:", baseUrl);
 
     // Testar conectividade básica
