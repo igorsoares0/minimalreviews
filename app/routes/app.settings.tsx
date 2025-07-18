@@ -48,8 +48,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const allowAnonymous = formData.get("allowAnonymous") === "on";
   const sendEmailNotification = formData.get("sendEmailNotification") === "on";
   const showOnProductPage = formData.get("showOnProductPage") === "on";
-  const starColor = formData.get("starColor") as string;
-  const maxReviewLength = parseInt(formData.get("maxReviewLength") as string);
   
   // Configurações de email
   const emailProvider = formData.get("emailProvider") as string;
@@ -97,8 +95,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       allowAnonymous,
       sendEmailNotification,
       showOnProductPage,
-      starColor,
-      maxReviewLength,
       emailProvider,
       emailApiKey: emailApiKey || null,
       emailFromName,
@@ -116,8 +112,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       allowAnonymous,
       sendEmailNotification,
       showOnProductPage,
-      starColor,
-      maxReviewLength,
       emailProvider,
       emailApiKey: emailApiKey || null,
       emailFromName,
@@ -166,9 +160,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Settings() {
   const { settings } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const [starColor, setStarColor] = useState(settings.starColor);
   const [emailProvider, setEmailProvider] = useState(settings.emailProvider);
-  const [maxReviewLength, setMaxReviewLength] = useState(settings.maxReviewLength.toString());
   const [mailtrapToken, setMailtrapToken] = useState((settings as any).mailtrapToken || "");
   const [mailtrapInboxId, setMailtrapInboxId] = useState((settings as any).mailtrapInboxId || "");
   const [emailApiKey, setEmailApiKey] = useState(settings.emailApiKey || "");
@@ -182,12 +174,6 @@ export default function Settings() {
   const [autoSendMaxReminders, setAutoSendMaxReminders] = useState(((settings as any).autoSendMaxReminders || 2).toString());
   const [autoSendReminderDays, setAutoSendReminderDays] = useState(((settings as any).autoSendReminderDays || 7).toString());
 
-  const maxLengthOptions = [
-    { label: "100 caracteres", value: "100" },
-    { label: "250 caracteres", value: "250" },
-    { label: "500 caracteres", value: "500" },
-    { label: "1000 caracteres", value: "1000" },
-  ];
 
   const emailProviderOptions = [
     { label: "SendGrid", value: "sendgrid" },
@@ -267,31 +253,6 @@ export default function Settings() {
                 </BlockStack>
               </Card>
 
-              <Card>
-                <BlockStack gap="400">
-                  <Text as="h2" variant="headingMd">
-                    Personalização
-                  </Text>
-                  <FormLayout>
-                    <TextField
-                      label="Cor das estrelas"
-                      value={starColor}
-                      onChange={setStarColor}
-                      name="starColor"
-                      helpText="Digite a cor em formato hexadecimal (ex: #FFD700)"
-                      placeholder="#FFD700"
-                      autoComplete="off"
-                    />
-                    <Select
-                      label="Tamanho máximo do review"
-                      options={maxLengthOptions}
-                      value={maxReviewLength}
-                      onChange={setMaxReviewLength}
-                      name="maxReviewLength"
-                    />
-                  </FormLayout>
-                </BlockStack>
-              </Card>
 
               <Card>
                 <BlockStack gap="400">
