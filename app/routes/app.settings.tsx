@@ -45,7 +45,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const autoPublish = formData.get("autoPublish") === "on";
   const requireApproval = formData.get("requireApproval") === "on";
-  const allowAnonymous = formData.get("allowAnonymous") === "on";
   const sendEmailNotification = formData.get("sendEmailNotification") === "on";
   const showOnProductPage = formData.get("showOnProductPage") === "on";
   
@@ -92,7 +91,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     update: {
       autoPublish,
       requireApproval,
-      allowAnonymous,
       sendEmailNotification,
       showOnProductPage,
       emailProvider,
@@ -109,7 +107,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       shop,
       autoPublish,
       requireApproval,
-      allowAnonymous,
       sendEmailNotification,
       showOnProductPage,
       emailProvider,
@@ -230,12 +227,6 @@ export default function Settings() {
                       helpText="Todos os reviews precisam ser aprovados antes de aparecer na loja"
                       checked={settings.requireApproval}
                       name="requireApproval"
-                    />
-                    <Checkbox
-                      label="Permitir reviews anônimos"
-                      helpText="Clientes podem deixar reviews sem fazer login"
-                      checked={settings.allowAnonymous}
-                      name="allowAnonymous"
                     />
                     <Checkbox
                       label="Notificações por email"
